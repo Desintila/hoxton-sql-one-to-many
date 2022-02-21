@@ -27,6 +27,10 @@ const createMuseum = db.prepare(`INSERT INTO museums(name,city) VALUES(?,?);`)
 
 const createWork = db.prepare(`INSERT INTO works(name,picture,museum_id) VALUES(?,?,?);`)
 
+const deleteWork = db.prepare(`DELETE FROM works WHERE id=?;`)
+const deleteMuseum = db.prepare(`DELETE FROM museums WHERE id=?;`)
+const deleteWorkByMuseumId = db.prepare(`DELETE FROM works WHERE museum_id=?;`)
+
 app.get('/museums', (req, res) => {
     const allMuseums = getAllMuseums.all()
 
@@ -127,6 +131,36 @@ app.post('/works', (req, res) => {
     }
     else {
         res.status(400).send({ error: errors })
+    }
+})
+
+app.delete('/works/:id', (req, res) => {
+    const id = Number(req.params.id)
+
+    const result = deleteWork.run(id)
+
+    if (result.changes !== 0) {
+
+        res.send('Work deleted')
+    }
+    else {
+        res.status(404).send({ error: 'Work not found' })
+    }
+})
+
+app.delete('/museums/:id', (req, res) => {
+    const id = Number(req.params.id)
+
+    deleteWorkByMuseumId.run(id)
+
+    const result = deleteMuseum.run(id)
+
+    if (result.changes !== 0) {
+
+        res.send('Museum deleted')
+    }
+    else {
+        res.status(404).send({ error: 'Museum not found' })
     }
 })
 
